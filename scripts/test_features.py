@@ -10,7 +10,7 @@ def test_feature_extractor():
     preprocessor = DataPreprocessor()
     feature_extractor = FeatureExtractor()
     
-    data = np.genfromtxt('data/raw/patient_01.csv', delimiter=',', skip_header=1)
+    data = np.genfromtxt('data/csv/patient_10.csv', delimiter=',', skip_header=1)
     thigh_data = data[:,4]
     # Preprocessing stage
     filtered_data = preprocessor.apply_butter(thigh_data)

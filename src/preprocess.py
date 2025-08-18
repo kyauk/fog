@@ -4,7 +4,7 @@ import numpy as np
 # Overlapping of 0.5s (0-4, 0.5-4.5, 1-5)
 # Defaults are cutoff after 20 hz, have a sampling rate of 64, window size of 4, and window overlap of 0.5
 class DataPreprocessor:
-    def __init__(self,cutoff=20, sampling_rate=64, window_size=4.0, window_overlap=0.5):
+    def __init__(self,cutoff=20, sampling_rate=64, window_size=6.0, window_overlap=0.5):
         self.cutoff = cutoff
         self.sampling_rate = sampling_rate
         self.window_size = window_size
@@ -31,5 +31,7 @@ class DataPreprocessor:
     def normalize_windows(self, windows):
         means = windows.mean(axis=1, keepdims=True) 
         stds = windows.std(axis=1, keepdims=True)    
+        stds = np.where(stds == 0, 1, stds)
         return (windows - means) / stds
+
     

@@ -31,10 +31,10 @@ for i, file in enumerate(files):
     df = pd.read_csv(file, sep=' ', header=None, names=columns)
     
     # Save individual patient file
-    patient_filename = f'data/raw/patient_{i:02d}.csv'
+    patient_filename = f'data/csv/patient_{i:02d}.csv'
     os.makedirs('data/raw', exist_ok=True)
     df.to_csv(patient_filename, index=False)
     
     print(f"Patient {i}: {df.shape} - Labels: {df['label'].value_counts().to_dict()}")
 
-print("Saved individual patient files to data/raw/")
+print("Saved individual patient files to data/csv/")

@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 class FeatureExtractor:
-    def __init__(self, sampling_rate=64, expected_window_size = 4.0):
+    def __init__(self, sampling_rate=64, expected_window_size = 6.0):
         self.sampling_rate = sampling_rate
         self.expected_window_size = int(expected_window_size * self.sampling_rate)
     def calculate_freq_features(self, window):
@@ -24,7 +24,12 @@ class FeatureExtractor:
         # Locomotion power is TOTAL energy Between [0.5,3]
         loco_power = psd[(f >= 0.5) & (f <= 3)].sum()
         freeze_index =  freeze_power/loco_power if loco_power > 0 else 0
-        spectral_centroid = np.sum(f * psd) / np.sum(psd)
+        total_power = np.sum(psd)
+        if total_power == 0 or np.isclose(total_power, 0):
+            # no meaningful frequency content - assign default value
+            spectral_centroid = 0.0  
+        else:
+            spectral_centroid = np.sum(f * psd) / total_power
         return freeze_index, spectral_centroid
     
     def calculate_energy(self, window):
@@ -34,7 +39,10 @@ class FeatureExtractor:
         return np.var(window)
     
     def calculate_skew(self,window):
-        return stats.skew(window)
+        skew = stats.skew(window)
+        if not np.isfinite(skew):
+            skew = 0.0
+        return skew
     
     def extract_features(self, windows):
         features_matrix = []
