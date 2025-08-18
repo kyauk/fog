@@ -13,7 +13,7 @@ import pandas as pd
 class FeatureExtractor:
     def __init__(self, sampling_rate=64, expected_window_size = 4.0):
         self.sampling_rate = sampling_rate
-        self.expected_window_size = expected_window_size * self.sampling_rate
+        self.expected_window_size = int(expected_window_size * self.sampling_rate)
     def calculate_freq_features(self, window):
         # if inputted window less than 4 seconds
         if len(window) != self.expected_window_size:

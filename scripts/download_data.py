@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import glob
-
+import os
 # load .txt files
 files = glob.glob("data/raw/daphnet/*.txt")
 # create columns to a csv
@@ -27,20 +27,14 @@ columns = [
     'label'
 ]
 
-all_data = []
-
-for file in files:
+for i, file in enumerate(files):
     df = pd.read_csv(file, sep=' ', header=None, names=columns)
-    all_data.append(df)
     
-# here we will combine data then turn it to a csv and return it back to this path: data/raw/daphnet/
-combined_data = pd.concat(all_data, ignore_index=True)
-# for future debugging purposes and seeing if we formatted correctly:
+    # Save individual patient file
+    patient_filename = f'data/raw/patient_{i:02d}.csv'
+    os.makedirs('data/raw', exist_ok=True)
+    df.to_csv(patient_filename, index=False)
+    
+    print(f"Patient {i}: {df.shape} - Labels: {df['label'].value_counts().to_dict()}")
 
-print(f'Shape: {combined_data.shape}')
-print(f"Label counts: {combined_data['label'].value_counts()}")
-print("first few rows:\n", combined_data.head())
-# Now we route to csv to path
-path = 'data/raw/daphnet/daphnet_data.csv'
-combined_data.to_csv(path, index=False)
-print(f"Saved CSV to {path}!")
+print("Saved individual patient files to data/raw/")

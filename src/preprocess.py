@@ -8,7 +8,7 @@ class DataPreprocessor:
         self.cutoff = cutoff
         self.sampling_rate = sampling_rate
         self.window_size = window_size
-        self. window_overlap = window_overlap
+        self.window_overlap = window_overlap
         
         
     def apply_butter(self, data):
