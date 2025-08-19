@@ -1,8 +1,10 @@
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 import numpy as np
+from tqdm import tqdm
 from sklearn.metrics import confusion_matrix
 import pandas as pd
+
 class Model():
     def __init__(self, model_type='random_forest'):
         self.model_type = model_type
@@ -25,33 +27,55 @@ class Model():
             )
     # note do not need a train function as you are retraining everytime throughout LOSO (if you're using the same exact dataset, use train function to reduce redundant training calls)
     def loso(self, all_data):
+        patient_results = []
         all_predictions = []
+        all_probs = []
         all_labels = []
-        for test_patient in all_data.keys():
-            print(f"Testing on patient {test_patient}")
-            X_train_list = [all_data[p].iloc[:,:-1] for p in all_data if p != test_patient]
-            y_train_list = [all_data[p].iloc[:,-1] for p in all_data if p != test_patient]
+        with tqdm(total=len(all_data.keys()), desc=f"Running LOSO Cross-Validation") as pbar:
+            for test_patient in all_data.keys():
+                pbar.set_description(f"LOSO - Testing on patient {test_patient}")
+                
+                X_train_list = [all_data[p].iloc[:,:-1] for p in all_data if p != test_patient]
+                y_train_list = [all_data[p].iloc[:,-1] for p in all_data if p != test_patient]
+                
+                X_train = pd.concat(X_train_list, ignore_index=True)
+                y_train = pd.concat(y_train_list, ignore_index=True)
+                
+                # test set
+                X_test = all_data[test_patient].iloc[:,:-1]
+                y_test = all_data[test_patient].iloc[:,-1]
+                
+                # Predict
+                scores, y_pred = self.train_and_predict(X_train, y_train, X_test)
+                
+                all_probs.extend(scores)
+                all_predictions.extend(y_pred)
+                all_labels.extend(y_test)
+                
+                # Calculating individual loso stats
+                patient_metrics = self._calculate_metrics(y_test, y_pred)
+                patient_results.append({
+                    'patient_id': test_patient,
+                    'sensitivity': patient_metrics['sensitivity'],
+                    'specificity': patient_metrics['specificity'],
+                    'n_windows': len(y_test),
+                    'n_fog_windows': sum(y_test),
+                    'y_true': list(y_test),
+                    'y_pred': list(y_pred),
+                    'y_proba': list(scores)
+                })
+                
+                pbar.update(1)
             
-            X_train = pd.concat(X_train_list, ignore_index=True)
-            y_train = pd.concat(y_train_list, ignore_index=True)
-            # test set
-            X_test = all_data[test_patient].iloc[:,:-1]
-            y_test = all_data[test_patient].iloc[:,-1]
-            print(f"  Train: {X_train.shape}, Test: {X_test.shape}")
-            # Predict
-            y_pred = self.train_and_predict(X_train, y_train, X_test)
-            
-            all_predictions.extend(y_pred)
-            all_labels.extend(y_test)
-            
-        return all_labels, all_predictions
+        return all_labels, all_predictions, all_probs, patient_results
             
     # model functions
-    def train_and_predict(self, X_train, y_train, X_test, threshold=0.43):
+    def train_and_predict(self, X_train, y_train, X_test, threshold=0.45):
         self.model.fit(X_train, y_train)
         scores = self.model.predict_proba(X_test)[:, 1]
-        return (scores >= threshold).astype(int)
-        
+        predictions = (scores >= threshold).astype(int)
+        return scores, predictions
+    
     def get_feature_importance(self):
         return self.model.feature_importances_
     # model evaluations and data visualization
@@ -66,13 +90,3 @@ class Model():
             'specificity': specificity,
             'confusion_matrix': (tn, fp, fn, tp)
         }
-
-class ModelVisuals:
-    def plot_confusion_matrix():
-        pass
-    def eval_loso():
-        pass
-    def plot_feature_importance():
-        pass
-    def plot_threshold_performance():
-        pass

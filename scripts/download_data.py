@@ -3,7 +3,7 @@ import numpy as np
 import glob
 import os
 # load .txt files
-files = glob.glob("data/raw/daphnet/*.txt")
+files = glob.glob("data/csv/daphnet/*.txt")
 # create columns to a csv
 '''
 1. Time of sample in millisecond
@@ -32,7 +32,7 @@ for i, file in enumerate(files):
     
     # Save individual patient file
     patient_filename = f'data/csv/patient_{i:02d}.csv'
-    os.makedirs('data/raw', exist_ok=True)
+    os.makedirs('data/csv', exist_ok=True)
     df.to_csv(patient_filename, index=False)
     
     print(f"Patient {i}: {df.shape} - Labels: {df['label'].value_counts().to_dict()}")
