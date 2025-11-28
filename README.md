@@ -92,3 +92,11 @@ Evaluated using **Leave-One-Subject-Out (LOSO)** cross-validation on 17 patients
 
 ## 👨‍💻 Author
 **Jason Kyauk**
+
+---
+
+## 🙏 Acknowledgments
+
+- **ETH Zurich & Tel Aviv Sourasky Medical Center** for creating the Daphnet Freezing of Gait Dataset.
+- **UCI Machine Learning Repository** for hosting the dataset.
+- **IEEE Researchers** (Bächlin et al.) for their foundational work on FoG detection.
