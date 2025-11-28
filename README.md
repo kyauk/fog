@@ -17,7 +17,7 @@ Improved detection sensitivity from **73% (baseline)** to **89.5%** by identifyi
 
 ---
 
-## 🛠 Technical Highlights (Robotics & CV Focus)
+## 🛠 Technical Highlights
 
 ### 1. Sensor Fusion & Signal Processing
 Instead of treating sensor data as generic time-series, I applied physics-based feature extraction to capture the kinematics of freezing episodes.
@@ -76,8 +76,6 @@ Evaluated using **Leave-One-Subject-Out (LOSO)** cross-validation on 17 patients
 │   ├── MLModel.py            # Random Forest implementation & LOSO validation
 │   └── visualizer.py         # Signal visualization tools
 ├── main.py                   # End-to-end training & validation pipeline
-├── docs/
-│   └── NORMALIZATION_BUG.md  # Deep dive into the critical bug fix
 └── scripts/
     └── diagnose.py           # System diagnostic tools
 ```
@@ -93,6 +91,4 @@ Evaluated using **Leave-One-Subject-Out (LOSO)** cross-validation on 17 patients
 ---
 
 ## 👨‍💻 Author
-**[Your Name]**
-*Aspiring Computer Vision & Robotics Engineer*
-*Passionate about signal processing, sensor fusion, and real-time systems.*
+**Jason Kyauk**
