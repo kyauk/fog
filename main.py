@@ -7,38 +7,75 @@ import pandas as pd
 import glob
 import matplotlib.pyplot as plt
 
-def get_labels(windows):
+def get_labels(windows, threshold=0.3):
+    """
+    Convert window labels to binary using majority voting.
+    
+    Args:
+        windows: Array of label windows
+        threshold: Minimum ratio of FoG samples to classify as FoG (default 0.3)
+                  Lowered from 0.5 to catch FoG episodes at window boundaries.
+                  Clinical priority: better to alert early than miss FoG.
+    
+    Returns:
+        List of binary labels (0=no FoG, 1=FoG)
+    """
     labels = []
     for window in windows:
-        if 1 not in window and 0 not in window:
-            labels.append(1)
-        else:
-            labels.append(0)
+        # Count FoG samples (label 2) in window
+        fog_ratio = np.sum(window == 2) / len(window) if len(window) > 0 else 0
+        # Use 30% threshold: if >= 30% of window is FoG, label as FoG
+        labels.append(1 if fog_ratio >= threshold else 0)
     return labels
 def load_and_preprocess(patient_file_dir):
     preprocessor = DataPreprocessor()
     feature_extractor = FeatureExtractor()
     data = np.genfromtxt(patient_file_dir, delimiter=',', skip_header=1)
-    # ankle is 2
-    thigh_data = data[:,4]
-    labels_data = data[:,-1]
-    # preprocess data and extract features, labels
-    filtered_data = preprocessor.apply_butter(thigh_data)
-    windows = preprocessor.normalize_windows(preprocessor.create_windows(filtered_data))
-    features = feature_extractor.extract_features(windows)
+    
+    # Use thigh sensor as proxy for wrist (columns 4,5,6 = forward, vertical, lateral)
+    # Mapping to standard X, Y, Z (assuming forward=X, vertical=Y, lateral=Z)
+    thigh_x = data[:, 3]
+    thigh_y = data[:, 4]
+    thigh_z = data[:, 5]
+    
+    # Compute 3D magnitude: sqrt(x^2 + y^2 + z^2)
+    thigh_magnitude = np.sqrt(thigh_x**2 + thigh_y**2 + thigh_z**2)
+    
+    labels_data = data[:, -1]
+    
+    # Preprocess all signals with low-pass filter
+    filtered_x = preprocessor.apply_butter(thigh_x)
+    filtered_y = preprocessor.apply_butter(thigh_y)
+    filtered_z = preprocessor.apply_butter(thigh_z)
+    filtered_mag = preprocessor.apply_butter(thigh_magnitude)
+    
+    # Create windows for all axes WITHOUT normalization
+    windows_x = preprocessor.create_windows(filtered_x)
+    windows_y = preprocessor.create_windows(filtered_y)
+    windows_z = preprocessor.create_windows(filtered_z)
+    windows_mag = preprocessor.create_windows(filtered_mag)
+    
+    # Prepare dictionary for feature extractor
+    windows_dict = {
+        'x': windows_x,
+        'y': windows_y,
+        'z': windows_z,
+        'mag': windows_mag
+    }
+    
+    # Extract features from all axes
+    # This will generate 37 features * 4 axes = 148 features
+    features = feature_extractor.extract_features(windows_dict)
+    
+    # Get labels with 30% threshold
     labels_windows = preprocessor.create_windows(labels_data)
-    labels = get_labels(labels_windows)
+    labels = get_labels(labels_windows, threshold=0.3)
     
-    # reformat to pandas
-    df = pd.DataFrame(features, columns=[
-        'freeze_index',
-        'energy_threshold', 
-        'variance',
-        'skewness',
-        'spectral_centroid'
-    ])
+    # Create DataFrame with expanded feature names
+    feature_names = feature_extractor.get_feature_names(axes=['x', 'y', 'z', 'mag'])
+    df = pd.DataFrame(features, columns=feature_names)
     
-    # add labels and patient ID
+    # Add labels
     df['label'] = labels
     return df
 
@@ -54,21 +91,23 @@ def main():
     
     visualizer = DataVisualizer()
     
-    print("Creating raw vs processed signal visualization...")
+    print("Creating raw vs processed signal visualization...", flush=True)
     if patient_files:
         preprocessor = DataPreprocessor()
         try:
+            # Fix: Don't pass save_path to the function, save the returned figure instead
             raw_fig = visualizer.plot_raw_vs_processed_data(
                 patient_files[2], 
-                preprocessor, 
-                start_idx=51343,  # ~3 minutes
-                duration=120      # 120 seconds
+                preprocessor
             )
-            plt.show()
+            raw_fig.savefig('raw_vs_processed.png')
+            print("Visualization created successfully", flush=True)
         except Exception as e:
-            print(f"Note: Raw signal plot had an issue: {e}")
+            print(f"Visualization failed: {e}", flush=True)
+            import traceback
+            traceback.print_exc()
             
-    print("Starting Model LOSO training and testing")
+    print("Starting Model LOSO training and testing", flush=True)
     model = Model(model_type='random_forest')
     y_true, y_pred, y_proba, patient_results = model.loso(patients_data)
     results = model._calculate_metrics(y_true, y_pred)

@@ -5,3 +5,4 @@ scikit_learn==1.7.1
 scipy==1.16.1
 seaborn==0.13.2
 tqdm==4.67.1
+PyWavelets==1.7.0

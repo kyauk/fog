@@ -4,7 +4,16 @@ import numpy as np
 # Overlapping of 0.5s (0-4, 0.5-4.5, 1-5)
 # Defaults are cutoff after 20 hz, have a sampling rate of 64, window size of 6, and window overlap of 0.5
 class DataPreprocessor:
-    def __init__(self,cutoff=20, sampling_rate=64, window_size=6.0, window_overlap=0.5):
+    def __init__(self, cutoff=20, sampling_rate=64, window_size=4.0, window_overlap=0.4):
+        """
+        Initialize preprocessor with IEEE paper optimal parameters.
+        
+        Args:
+            cutoff: Low-pass filter cutoff frequency (Hz)
+            sampling_rate: Sensor sampling rate (Hz)
+            window_size: Window duration in seconds (4s optimal per IEEE paper)
+            window_overlap: Window overlap in seconds (0.4s = 10% overlap)
+        """
         self.cutoff = cutoff
         self.sampling_rate = sampling_rate
         self.window_size = window_size
