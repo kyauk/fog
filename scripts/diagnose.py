@@ -1,5 +1,6 @@
 """
-Diagnostic script to investigate why performance is only 82.3% instead of expected 95%+
+Diagnostic script (AI-generated) to validate feature extraction pipeline.
+Used to identify the normalization bug that was destroying signal amplitude information.
 """
 import numpy as np
 import pandas as pd
