@@ -1,9 +1,5 @@
 # FoGStop: Real-Time Sensor Fusion for Gait Analysis
 
-[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Research-yellow.svg)]()
-
 > **Optimizing a wearable inference engine from 73% to 90% sensitivity using multi-axis signal processing and data-driven debugging.**
 
 ## 🤖 Project Overview
@@ -13,7 +9,7 @@ This project implements a real-time **Freezing of Gait (FoG)** detection system 
 **Key Engineering Achievement:**
 Improved detection sensitivity from **73% (baseline)** to **89.5%** by identifying critical signal processing flaws and implementing a multi-axis sensor fusion architecture, all while maintaining strict computational constraints for wearable deployment.
 
-👉 **[Read the Engineering Retrospective: Learnings & Insights](LEARNINGS.md)**
+**[Read the Engineering Retrospective: Learnings & Insights](LEARNINGS.md)**
 
 ---
 
@@ -54,7 +50,7 @@ Evaluated using **Leave-One-Subject-Out (LOSO)** cross-validation on 17 patients
 
 ---
 
-## 🧠 System Architecture
+## System Architecture
 
 ### Pipeline
 1.  **Input:** 64Hz 3-axis Accelerometer Data
@@ -82,7 +78,7 @@ Evaluated using **Leave-One-Subject-Out (LOSO)** cross-validation on 17 patients
 
 ---
 
-## 🚀 Future Roadmap
+## Future Roadmap
 
 - **CoreML Integration:** Porting the trained Random Forest to CoreML for on-device inference on Apple Watch.
 - **Quantization:** Reducing model precision to FP16/INT8 to further optimize for embedded microcontrollers.
@@ -90,12 +86,12 @@ Evaluated using **Leave-One-Subject-Out (LOSO)** cross-validation on 17 patients
 
 ---
 
-## 👨‍💻 Author
+## Author
 **Jason Kyauk**
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **ETH Zurich & Tel Aviv Sourasky Medical Center** for creating the Daphnet Freezing of Gait Dataset.
 - **UCI Machine Learning Repository** for hosting the dataset.
